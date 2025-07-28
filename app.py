@@ -19,7 +19,6 @@ def download_and_load_pipeline():
     Checks for the pipeline file. If not found, downloads it from a public URL.
     Then loads and returns the pipeline.
     """
-    # --- YENİ VE BASİT YAPI ---
     # Model dosyasını doğrudan ana dizine kaydedeceğiz.
     LOCAL_MODEL_PATH = "price_prediction_pipeline.joblib"
     MODEL_URL = "https://github.com/SuleymanToklu/car-price-prediction/releases/download/v1.0/price_prediction_pipeline.joblib"
@@ -91,8 +90,16 @@ if pipeline:
 
     if st.button("Fiyatı Tahmin Et", type="primary", use_container_width=True):
         
-        # Kullanıcıdan gelen girdileri bir sözlükte toplayalım.
-        input_data = {
+        # --- HATA DÜZELTME: Bu bölüm sorunu çözmek için güncellendi ---
+        try:
+            # 1. Modelin eğitildiği sırada gördüğü tüm sütun isimlerini al
+            expected_features = pipeline.feature_names_in_
+        except AttributeError:
+            st.error("Bu pipeline dosyası beklenen özellik listesini içermiyor. Lütfen scikit-learn 1.0+ ile eğitilmiş bir model kullanın.")
+            st.stop()
+
+        # 2. Kullanıcıdan gelen girdileri bir sözlükte topla
+        user_input_data = {
             'odometer': odometer,
             'condition': condition,
             'fuel': fuel,
@@ -102,15 +109,22 @@ if pipeline:
             'vehicle_age': vehicle_age
         }
         
-        # Tek satırlık bir DataFrame oluştur
-        prediction_df = pd.DataFrame([input_data])
+        # 3. Modelin beklediği tüm sütunları içeren boş bir DataFrame oluştur
+        prediction_input_df = pd.DataFrame(columns=expected_features)
+        prediction_input_df.loc[0] = np.nan # Tek bir satır oluştur ve NaN ile doldur
+
+        # 4. Bu boş DataFrame'i kullanıcının girdiği verilerle doldur
+        # Girilmeyen sütunlar (VIN gibi) NaN olarak kalacak ve pipeline'daki Imputer bunu halledecek.
+        for col, value in user_input_data.items():
+            if col in prediction_input_df.columns:
+                prediction_input_df.at[0, col] = value
         
-        st.subheader("Modele Gönderilen Ham Veri:")
-        st.dataframe(prediction_df)
+        st.subheader("Modele Gönderilen Ham Veri (Önizleme):")
+        st.dataframe(prediction_input_df)
 
         try:
-            # Pipeline'ı kullanarak tahmini yapalım
-            prediction = pipeline.predict(prediction_df)
+            # 5. Pipeline'ı kullanarak tahmini yap
+            prediction = pipeline.predict(prediction_input_df)
             predicted_price = prediction[0]
 
             # Tahmini şık bir şekilde gösterelim
