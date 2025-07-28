@@ -124,6 +124,3 @@ if pipeline:
 
 else:
     st.warning("Uygulama başlatılamadı. Model dosyası yüklenemedi.")
-
-```
-Bu güncellenmiş kodu GitHub'a gönderdiğinde, Streamlit Cloud'daki uygulamanın bu hatayı aşarak başarıyla çalışması gerekiyor. Bu son adımdı!
