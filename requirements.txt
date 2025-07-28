@@ -1,0 +1,13 @@
+pandas~=2.3.1
+numpy~=2.1.3
+scikit-learn~=1.6.1
+xgboost~=3.0.2
+seaborn
+matplotlib~=3.10.3
+jupyterlab
+streamlit
+sweetviz~=2.3.1
+sns~=0.1
+joblib~=1.4.2
+scipy
+pyarrow
