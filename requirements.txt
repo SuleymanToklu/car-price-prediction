@@ -11,3 +11,5 @@ sns~=0.1
 joblib~=1.4.2
 scipy
 pyarrow
+requests
+tqdm
